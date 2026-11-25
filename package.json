@@ -1,0 +1,1 @@
+{"name":"taskacceptance-desk","private":true,"type":"module","scripts":{"dev":"vite --host 127.0.0.1","build":"vite build --base=./","test":"node tests/run.mjs"},"dependencies":{"genlayer-js":"2.0.0","lucide":"^0.468.0","viem":"^2.38.0"},"devDependencies":{"vite":"^7.2.0"}}
