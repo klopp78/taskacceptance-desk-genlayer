@@ -2,5 +2,6 @@ node_modules/
 dist/
 .venv/
 .testdeps/
+deployments/failed-funded-test.json
 __pycache__/
 .env*

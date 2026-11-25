@@ -4,7 +4,10 @@ Not a substitute for GenVM Direct Mode or funded Studionet integration tests.
 import sys, types, json, unittest, importlib.util, copy
 import datetime
 from pathlib import Path
-class Address(str): pass
+class Address(str):
+    def __new__(cls, value):
+        aliases={'buyer':'0x'+'11'*20,'worker':'0x'+'22'*20,'stranger':'0x'+'33'*20}
+        return super().__new__(cls,aliases.get(value,value))
 class Generic:
     def __class_getitem__(cls, item): return dict
 class Arr:
@@ -42,7 +45,17 @@ class Tests(unittest.TestCase):
         self.c=contract.TaskAcceptance();self.c.tasks={};self.c.ids=[];self.c.credits={}
         gl.block.timestamp=1000;gl.message.sender_address=Address("buyer");gl.message.value=100
         gl.nondet.exec_prompt=lambda p:json.dumps({"criteria":["met","met"]})
-        self.id=self.c.create_task(Address("worker"),json.dumps(["Provide risks","Provide mitigations"]),2000,"nonce")
+        self.id=self.c.create_task(Address("worker"),json.dumps(["Provide risks","Provide mitigations"]),2000,"nonce","100")
+    def test_wrong_units_rejected(self):
+        gl.message.value=10**34
+        with self.assertRaisesRegex(Exception,"test_deposit"):
+            self.c.create_task(Address('worker'),'["A"]',2000,'wrong','10000000000000000')
+        gl.message.value=100
+        with self.assertRaisesRegex(Exception,"deposit_unit_mismatch"):
+            self.c.create_task(Address('worker'),'["A"]',2000,'wrong','1')
+    def test_integer_worker_rejected(self):
+        with self.assertRaisesRegex(Exception,"wallet_must_be_hex_string"):
+            self.c.create_task(1234,'["A"]',2000,'badworker','100')
     def record(self):return json.loads(self.c.get_task(self.id))
     def delivery(self):
         gl.message.sender_address=Address("worker")

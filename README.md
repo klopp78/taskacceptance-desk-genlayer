@@ -1,5 +1,9 @@
 # TaskAcceptance Desk
 
+## v2 rebuild
+
+The first funded UI experiment failed verification. Its old deployment is deprecated and must not be used as successful product evidence. v2 accepts wallet identities as strictly validated hex strings, caps each test escrow at 1 GEN, and requires an explicit canonical decimal `expected_deposit_wei` exactly equal to the transaction value. The frontend uses a fresh storage key, checks the on-chain v2 marker, passes bigint wei via SDK, and checks the exact stored deposit and both parties after finality. No v2 deployment or funded workflow is claimed until independently verified.
+
 Text-deliverable acceptance escrow on GenLayer, not an official Taskmarket integration.
 
 The buyer deposits Studio test GEN and commits 1-8 acceptance criteria, a named worker and a deadline. The worker must confirm the baseline hash before delivering an immutable UTF-8 text artifact. Validators compare every criterion classification and the canonical assessment context. Only a passing consensus verdict can credit the worker after a one-hour challenge period. Either named party can challenge once. Unresolved, inconclusive and failed reviews refund the buyer. Any wallet can recover a timed-out task. Credited recipients withdraw to their own address.

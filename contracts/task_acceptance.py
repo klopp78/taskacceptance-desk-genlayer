@@ -24,6 +24,10 @@ class TaskAcceptance(gl.contract.Contract):
         pass
 
     @gl.public.view
+    def get_version(self) -> str:
+        return "taskacceptance.v2.amount-bound"
+
+    @gl.public.view
     def get_task(self, task_id: str) -> str:
         return self.tasks.get(task_id, "")
 
@@ -34,18 +38,20 @@ class TaskAcceptance(gl.contract.Contract):
         return dump([self.ids[i] for i in range(int(offset), min(len(self.ids), int(offset) + int(limit)))])
 
     @gl.public.view
-    def credit_of(self, account: Address) -> str:
-        return str(self.credits.get(account, u256(0)))
+    def credit_of(self, account: str) -> str:
+        return str(self.credits.get(Address(wallet(account)), u256(0)))
 
     @gl.public.view
-    def preview_task_id(self, buyer: Address, nonce: str) -> str:
-        return "task_" + digest(dump([str(buyer).lower(), text(nonce, 100)]))
+    def preview_task_id(self, buyer: str, nonce: str) -> str:
+        return "task_" + digest(dump([wallet(buyer), text(nonce, 100)]))
 
     @gl.public.write.payable
-    def create_task(self, worker: Address, criteria_json: str, delivery_deadline: u64, nonce: str) -> str:
+    def create_task(self, worker: str, criteria_json: str, delivery_deadline: u64, nonce: str, expected_deposit_wei: str) -> str:
         buyer = gl.message.sender_address
         criteria = json.loads(criteria_json)
-        if worker == buyer or worker == Address("0x0000000000000000000000000000000000000000"):
+        worker = wallet(worker)
+        buyer_text = wallet(str(buyer))
+        if worker == buyer_text or worker == "0x0000000000000000000000000000000000000000":
             raise Exception("distinct_worker_required")
         if not isinstance(criteria, list) or not 1 <= len(criteria) <= 8:
             raise Exception("one_to_eight_criteria_required")
@@ -55,12 +61,14 @@ class TaskAcceptance(gl.contract.Contract):
         now = clock()
         if not now + 300 <= int(delivery_deadline) <= now + 2592000:
             raise Exception("invalid_deadline")
-        if int(gl.message.value) <= 0:
-            raise Exception("positive_deposit_required")
-        task_id = self.preview_task_id(buyer, nonce)
+        if not 0 < int(gl.message.value) <= 10**18:
+            raise Exception("test_deposit_must_be_between_zero_and_one_GEN")
+        if not isinstance(expected_deposit_wei, str) or not expected_deposit_wei.isascii() or not expected_deposit_wei.isdigit() or str(int(expected_deposit_wei)) != expected_deposit_wei or int(expected_deposit_wei) != int(gl.message.value):
+            raise Exception("deposit_unit_mismatch")
+        task_id = self.preview_task_id(buyer_text, nonce)
         if self.tasks.get(task_id, ""):
             raise Exception("nonce_reused")
-        baseline = {"buyer": str(buyer), "worker": str(worker), "criteria": criteria, "deadline": int(delivery_deadline), "deposit_wei": str(gl.message.value)}
+        baseline = {"buyer": buyer_text, "worker": worker, "criteria": criteria, "deadline": int(delivery_deadline), "deposit_wei": expected_deposit_wei, "version": "v2"}
         record = {"id": task_id, "baseline": baseline, "baseline_hash": digest(dump(baseline)), "state": "offered", "created_at": now}
         self.tasks[task_id] = dump(record)
         self.ids.append(task_id)
@@ -103,7 +111,7 @@ class TaskAcceptance(gl.contract.Contract):
     @gl.public.write
     def challenge(self, task_id: str, objection: str) -> str:
         r = self.load(task_id)
-        if str(gl.message.sender_address) not in (r["baseline"]["buyer"], r["baseline"]["worker"]):
+        if wallet(str(gl.message.sender_address)) not in (r["baseline"]["buyer"], r["baseline"]["worker"]):
             raise Exception("parties_only")
         if r["state"] != "reviewed" or clock() >= r["challenge_deadline"]:
             raise Exception("challenge_closed")
@@ -161,7 +169,7 @@ class TaskAcceptance(gl.contract.Contract):
         return json.loads(raw)
 
     def party(self, r, role):
-        if str(gl.message.sender_address) != r["baseline"][role]:
+        if wallet(str(gl.message.sender_address)) != r["baseline"][role]:
             raise Exception("only_" + role)
 
     def save(self, r):
@@ -218,3 +226,9 @@ def dump(value):
 
 def digest(value):
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
+
+
+def wallet(value):
+    if not isinstance(value, str) or len(value) != 42 or not value.startswith("0x") or any(c not in "0123456789abcdefABCDEF" for c in value[2:]):
+        raise Exception("wallet_must_be_hex_string")
+    return value.lower()
