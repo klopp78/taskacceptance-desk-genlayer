@@ -6,7 +6,7 @@ The buyer deposits Studio test GEN and commits 1-8 acceptance criteria, a named 
 
 Trust scope: this product evaluates the completeness of submitted text, not whether outside facts are true. External URLs are not accepted as substitutes for evidence. The buyer and worker should agree to the refund-on-inconclusive and timeout terms before the worker accepts.
 
-New deployments use the official GenVM v0.4 runner. The browser client uses GenLayer SDK 2.0 fee estimation and finality/readback, not ethers ABI calls. Deployment is not yet configured. Do not present an empty or placeholder address as a live product.
+New deployments use the official GenVM v0.4 runner. The browser client uses GenLayer SDK 2.0 fee estimation and finality/readback, not ethers ABI calls. The Studionet deployment is `0x96AEeA3bD87145e6951730e298530d8e36c49C3a`; its deploy finalized and a finalized registry read returned `[]`. See `deployments/studio.json`. The funded end-to-end workflow and recipient payout have not yet been verified.
 
 ## Local checks
 

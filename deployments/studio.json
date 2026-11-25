@@ -1,0 +1,11 @@
+{
+  "network": "Studionet",
+  "chainId": 61999,
+  "address": "0x96AEeA3bD87145e6951730e298530d8e36c49C3a",
+  "explorer": "https://explorer-studio.genlayer.com/address/0x96AEeA3bD87145e6951730e298530d8e36c49C3a",
+  "sourceCommit": "3ac8937",
+  "sourcePath": "contracts/task_acceptance.py",
+  "deploymentStatus": "FINALIZED",
+  "readCheck": "list_tasks(0, 10) at Finalized returned []",
+  "fundedWorkflowVerified": false
+}
