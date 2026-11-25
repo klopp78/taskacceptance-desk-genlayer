@@ -5,7 +5,7 @@ import { parseEther, formatEther } from 'viem';
 const $=id=>document.getElementById(id);
 let account,client,busy=false;
 const reader=createClient({chain:studionet});
-$('address').value=localStorage.getItem('taskacceptance.v2.contract')||'';
+$('address').value=localStorage.getItem('taskacceptance.v2.contract')||'0x5b9b230e55AC1Ae9EbD3b5969872173785F3E464';
 $('deadline').value=new Date(Date.now()+86400000-new Date().getTimezoneOffset()*60000).toISOString().slice(0,16);
 document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('.view').forEach(v=>v.hidden=v.id!==b.dataset.tab);document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));});
 document.querySelector('[data-tab]').classList.add('active');

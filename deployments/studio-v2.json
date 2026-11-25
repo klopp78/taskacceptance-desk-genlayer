@@ -1,0 +1,10 @@
+{
+  "version": "taskacceptance.v2.amount-bound",
+  "address": "0x5b9b230e55AC1Ae9EbD3b5969872173785F3E464",
+  "chainId": 61999,
+  "sourceCommit": "6dc946d",
+  "sourcePath": "contracts/task_acceptance.py",
+  "status": "FINALIZED",
+  "versionReadback": "taskacceptance.v2.amount-bound",
+  "fundedWorkflowVerified": false
+}
