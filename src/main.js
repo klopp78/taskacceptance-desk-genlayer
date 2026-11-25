@@ -24,13 +24,32 @@ async function write(functionName,args,value=0n){
   const request={address:address(),functionName,args,value};
   $('status').textContent='Estimating protocol fees...';
   const estimate=await client.estimateTransactionFeesForWrite(request);
-  if(!window.confirm('Submit '+functionName+'? Escrow: '+formatEther(value)+' test GEN; fee deposit: '+formatEther(BigInt(estimate.feeValue))+' test GEN'))throw Error('Canceled before signing.');
+  await confirmTransaction(request,estimate);
+  await identity();
+  if(address().toLowerCase()!==request.address.toLowerCase())throw Error('Contract changed during confirmation.');
   const hash=await client.writeContract({...request,fees:{distribution:estimate.distribution,feeValue:estimate.feeValue,messageAllocations:estimate.messageAllocations}});
   $('tx').href='https://explorer-studio.genlayer.com/tx/'+hash;$('tx').hidden=false;
   $('status').textContent='Awaiting finalized execution: '+hash;
   const r=await client.waitForTransactionReceipt({hash,waitUntil:'finalized',retries:180,interval:3000});
   if(r.lifecycle?.state!=='finalized'||r.resultName!=='MAJORITY_AGREE'||r.txExecutionResultName!=='FINISHED_WITH_RETURN')throw Error('Execution not verified. Inspect transaction before retrying.');
   return r;
+}
+
+async function confirmTransaction(request,estimate){
+  const dialog=document.createElement('dialog');
+  dialog.setAttribute('aria-labelledby','transaction-title');
+  const title=document.createElement('h2');title.id='transaction-title';title.textContent='Confirm testnet transaction';
+  const details=document.createElement('pre');
+  details.textContent=JSON.stringify({network:'Studionet (61999)',account,contract:request.address,method:request.functionName,escrowGEN:formatEther(request.value),escrowWei:request.value.toString(),protocolFeeGEN:formatEther(BigInt(estimate.feeValue)),arguments:request.args},null,2);
+  const accept=document.createElement('button');accept.textContent='Confirm and request wallet signature';
+  const cancel=document.createElement('button');cancel.textContent='Cancel transaction';
+  dialog.append(title,details,accept,cancel);document.body.append(dialog);
+  return new Promise((resolve,reject)=>{
+    const finish=(approved)=>{dialog.close();dialog.remove();approved?resolve():reject(Error('Canceled before signing.'));};
+    accept.onclick=()=>finish(true);cancel.onclick=()=>finish(false);
+    dialog.addEventListener('cancel',e=>{e.preventDefault();finish(false);},{once:true});
+    dialog.showModal();
+  });
 }
 $('createTask').onclick=()=>guard(async()=>{
   await identity();
