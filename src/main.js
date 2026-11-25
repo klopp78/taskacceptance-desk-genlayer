@@ -2,7 +2,7 @@ import './style.css';
 import { createClient } from 'genlayer-js';
 import { studionet } from 'genlayer-js/chains';
 import { parseEther, formatEther } from 'viem';
-import { assertFinalizedExecution } from './finality.js';
+import { waitForFinalizedExecution } from './finality.js';
 const $=id=>document.getElementById(id);
 let account,client,busy=false;
 const reader=createClient({chain:studionet});
@@ -33,8 +33,7 @@ async function write(functionName,args,value=0n,onSubmitted){
   onSubmitted?.(hash);
   $('tx').href='https://explorer-studio.genlayer.com/tx/'+hash;$('tx').hidden=false;
   $('status').textContent='Awaiting finalized execution: '+hash;
-  const r=await client.waitForTransactionReceipt({hash,waitUntil:'finalized',retries:180,interval:3000});
-  assertFinalizedExecution(r);
+  const r=await waitForFinalizedExecution(client,hash);
   return r;
 }
 

@@ -10,10 +10,13 @@
   "liveTask": {
     "id": "task_cb39bf52e00026fef7c8ee54d2705b9a9e9b913acfd0cee386c6f2c36781d12f",
     "depositWei": "10000000000000000",
-    "stateReadback": "submitted",
+    "stateReadback": "reviewed",
     "create": "0x3750a92ccc43660a864bf590486de4f27ca8d5942147fef73fc4599c79a6568b",
     "accept": "0xc3a314f8841a25d0dee6fbd58c54a3671ff7aa146612b5c859866bff18d72d3f",
     "deliver": "0xa7733df8f7224a853417a97317c153096a87e3cf92c9caf5895b371aed49c320",
-    "verifiedFinalizedSteps": ["create", "accept", "deliver"]
+    "assess": "0xb6690b079aa4595e87ae9dcb28a519385046e84073bd79a244b14af968d5dc14",
+    "assessment": {"criteria": ["met", "met"], "decision": "pass"},
+    "challengeDeadline": 1795627572,
+    "verifiedFinalizedSteps": ["create", "accept", "deliver", "assess"]
   }
 }

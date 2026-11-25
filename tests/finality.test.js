@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { assertFinalizedExecution } from '../src/finality.js';
+import { assertFinalizedExecution, waitForFinalizedExecution } from '../src/finality.js';
 
 const finalized = {
   status: 7,
@@ -24,4 +24,14 @@ test('rejects non-final, rejected, failed and incomplete receipts', () => {
     { ...finalized, txExecutionResultName: 'ROLLBACK' },
     { ...finalized, txExecutionResultName: undefined },
   ]) assert.throws(() => assertFinalizedExecution(receipt));
+});
+
+test('requests full SDK receipts rather than the renamed simplified schema', async () => {
+  const client = { waitForTransactionReceipt: async options => {
+    assert.equal(options.fullTransaction, true);
+    assert.equal(options.waitUntil, 'finalized');
+    assert.equal(options.hash, '0xtest');
+    return finalized;
+  } };
+  assert.equal(await waitForFinalizedExecution(client, '0xtest'), finalized);
 });

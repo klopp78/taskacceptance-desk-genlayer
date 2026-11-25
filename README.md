@@ -14,7 +14,7 @@ New deployments use the official GenVM v0.4 runner. The browser client uses GenL
 
 ## Local checks
 
-`npm install`, `npm test`, `npm run build`. Set `PYTHON` to a Python 3.12 executable if it is not on PATH. Ten host-mocked tests execute the actual submitted Python methods (not a separate JavaScript state machine). These cover named parties, baseline matching, delivery immutability, challenge windows, single settlement, timeout refunds, malformed models, validator disagreement and dispute resolution. Two frontend regression tests cover actual SDK lifecycle receipt fields and reject nonfinal or failed execution. They do not prove native transfer execution or GenVM compatibility. `tests/direct_smoke.py` is an additional official GenLayer Direct Mode check; install `genlayer-test==0.30.0` to run it.
+`npm install`, `npm test`, `npm run build`. Set `PYTHON` to a Python 3.12 executable if it is not on PATH. Ten host-mocked tests execute the actual submitted Python methods (not a separate JavaScript state machine). These cover named parties, baseline matching, delivery immutability, challenge windows, single settlement, timeout refunds, malformed models, validator disagreement and dispute resolution. Three frontend regression tests cover actual SDK lifecycle receipt fields, reject nonfinal or failed execution, and enforce full receipt retrieval (the SDK renames fields in simplified receipts). They do not prove native transfer execution or GenVM compatibility. `tests/direct_smoke.py` is an additional official GenLayer Direct Mode check; install `genlayer-test==0.30.0` to run it.
 
 ## Deployment checklist
 
