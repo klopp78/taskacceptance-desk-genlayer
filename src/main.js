@@ -2,10 +2,12 @@ import './style.css';
 import { createClient } from 'genlayer-js';
 import { studionet } from 'genlayer-js/chains';
 import { parseEther, formatEther } from 'viem';
+import { assertFinalizedExecution } from './finality.js';
 const $=id=>document.getElementById(id);
 let account,client,busy=false;
 const reader=createClient({chain:studionet});
 $('address').value=localStorage.getItem('taskacceptance.v2.contract')||'0x5b9b230e55AC1Ae9EbD3b5969872173785F3E464';
+$('taskid').value=localStorage.getItem('taskacceptance.v2.task')||'';
 $('deadline').value=new Date(Date.now()+86400000-new Date().getTimezoneOffset()*60000).toISOString().slice(0,16);
 document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('.view').forEach(v=>v.hidden=v.id!==b.dataset.tab);document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));});
 document.querySelector('[data-tab]').classList.add('active');
@@ -17,8 +19,8 @@ $('connect').onclick=()=>guard(async()=>{if(!window.ethereum)throw Error('No bro
 async function version(){const v=await reader.readContract({address:address(),functionName:'get_version',args:[],transactionHashVariant:'latest-final'});if(v!=='taskacceptance.v2.amount-bound')throw Error('Wrong contract version; v2 required.');}
 async function readTask(){await version();const raw=await reader.readContract({address:address(),functionName:'get_task',args:[task()],transactionHashVariant:'latest-final'});if(!raw)throw Error('Task not found in finalized state.');const r=JSON.parse(raw);if(r.id!==task())throw Error('Task readback mismatch.');$('record').textContent=JSON.stringify(r,null,2);$('state').textContent=r.state;$('baseline').value=r.baseline_hash;return r;}
 async function credit(){if(!account)return;const value=await reader.readContract({address:address(),functionName:'credit_of',args:[account],transactionHashVariant:'latest-final'});$('credit').textContent=formatEther(BigInt(value))+' GEN credit';}
-$('load').onclick=()=>guard(async()=>{await readTask();await credit();$('status').textContent='Finalized task loaded.';});
-async function write(functionName,args,value=0n){
+$('load').onclick=()=>guard(async()=>{await readTask();localStorage.setItem('taskacceptance.v2.task',task());await credit();$('status').textContent='Finalized task loaded.';});
+async function write(functionName,args,value=0n,onSubmitted){
   await identity();
   await version();
   const request={address:address(),functionName,args,value};
@@ -28,10 +30,11 @@ async function write(functionName,args,value=0n){
   await identity();
   if(address().toLowerCase()!==request.address.toLowerCase())throw Error('Contract changed during confirmation.');
   const hash=await client.writeContract({...request,fees:{distribution:estimate.distribution,feeValue:estimate.feeValue,messageAllocations:estimate.messageAllocations}});
+  onSubmitted?.(hash);
   $('tx').href='https://explorer-studio.genlayer.com/tx/'+hash;$('tx').hidden=false;
   $('status').textContent='Awaiting finalized execution: '+hash;
   const r=await client.waitForTransactionReceipt({hash,waitUntil:'finalized',retries:180,interval:3000});
-  if(r.lifecycle?.state!=='finalized'||r.resultName!=='MAJORITY_AGREE'||r.txExecutionResultName!=='FINISHED_WITH_RETURN')throw Error('Execution not verified. Inspect transaction before retrying.');
+  assertFinalizedExecution(r);
   return r;
 }
 
@@ -59,7 +62,10 @@ $('createTask').onclick=()=>guard(async()=>{
   const id=await reader.readContract({address:address(),functionName:'preview_task_id',args:[account,nonce],transactionHashVariant:'latest-final'});
   const amount=parseEther($('amount').value);
   if(amount<=0n||amount>10n**18n)throw Error('Deposit must be positive and at most 1 test GEN.');
-  await write('create_task',[worker,JSON.stringify(criteria),deadline,nonce,amount.toString()],amount);
+  await write('create_task',[worker,JSON.stringify(criteria),deadline,nonce,amount.toString()],amount,()=>{
+    $('taskid').value=id;
+    localStorage.setItem('taskacceptance.v2.task',id);
+  });
   $('taskid').value=id;
   const r=await readTask();
   if(r.baseline.buyer.toLowerCase()!==account.toLowerCase()||r.baseline.worker.toLowerCase()!==worker.toLowerCase())throw Error('Created task identity mismatch.');
