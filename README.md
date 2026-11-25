@@ -2,7 +2,7 @@
 
 ## v2 rebuild
 
-The first funded UI experiment failed verification. Its old deployment is deprecated and must not be used as successful product evidence. v2 accepts wallet identities as strictly validated hex strings, caps each test escrow at 1 GEN, and requires an explicit canonical decimal `expected_deposit_wei` exactly equal to the transaction value. The frontend uses a fresh storage key, checks the on-chain v2 marker, passes bigint wei via SDK, and checks the exact stored deposit and both parties after finality. No v2 deployment or funded workflow is claimed until independently verified.
+The first funded UI experiment failed verification. Its old deployment is deprecated and must not be used as successful product evidence. v2 accepts wallet identities as strictly validated hex strings, caps each test escrow at 1 GEN, and requires an explicit canonical decimal `expected_deposit_wei` exactly equal to the transaction value. The frontend uses a fresh storage key, checks the on-chain v2 marker, passes bigint wei via SDK, and checks the exact stored deposit and both parties after finality.
 
 Text-deliverable acceptance escrow on GenLayer, not an official Taskmarket integration.
 
@@ -10,11 +10,11 @@ The buyer deposits Studio test GEN and commits 1-8 acceptance criteria, a named 
 
 Trust scope: this product evaluates the completeness of submitted text, not whether outside facts are true. External URLs are not accepted as substitutes for evidence. The buyer and worker should agree to the refund-on-inconclusive and timeout terms before the worker accepts.
 
-New deployments use the official GenVM v0.4 runner. The browser client uses GenLayer SDK 2.0 fee estimation and finality/readback, not ethers ABI calls. The Studionet deployment is `0x96AEeA3bD87145e6951730e298530d8e36c49C3a`; its deploy finalized and a finalized registry read returned `[]`. See `deployments/studio.json`. The funded end-to-end workflow and recipient payout have not yet been verified.
+New deployments use the official GenVM v0.4 runner. The browser client uses GenLayer SDK 2.0 fee estimation and finality/readback, not ethers ABI calls. The current Studionet deployment is `0x5b9b230e55AC1Ae9EbD3b5969872173785F3E464`; its deploy and version readback are finalized. See `deployments/studio-v2.json`. A live 0.01 test GEN task has completed finalized creation, named-worker acceptance, and immutable delivery submission. Assessment, settlement, and recipient payout are still unverified; this is not yet a completed funded end-to-end workflow. `deployments/studio.json` is historical and deprecated.
 
 ## Local checks
 
-`npm install`, `npm test`, `npm run build`. Set `PYTHON` to a Python 3.12 executable if it is not on PATH. Eight host-mocked tests execute the actual submitted Python methods (not a separate JavaScript state machine). These cover named parties, baseline matching, delivery immutability, challenge windows, single settlement, timeout refunds, malformed models, validator disagreement and dispute resolution. They do not prove native transfer execution or GenVM compatibility. `tests/direct_smoke.py` is an additional official GenLayer Direct Mode check; install `genlayer-test==0.30.0` to run it.
+`npm install`, `npm test`, `npm run build`. Set `PYTHON` to a Python 3.12 executable if it is not on PATH. Ten host-mocked tests execute the actual submitted Python methods (not a separate JavaScript state machine). These cover named parties, baseline matching, delivery immutability, challenge windows, single settlement, timeout refunds, malformed models, validator disagreement and dispute resolution. Two frontend regression tests cover actual SDK lifecycle receipt fields and reject nonfinal or failed execution. They do not prove native transfer execution or GenVM compatibility. `tests/direct_smoke.py` is an additional official GenLayer Direct Mode check; install `genlayer-test==0.30.0` to run it.
 
 ## Deployment checklist
 
