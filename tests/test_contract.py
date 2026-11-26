@@ -3,6 +3,7 @@ Not a substitute for GenVM Direct Mode or funded Studionet integration tests.
 """
 import sys, types, json, unittest, importlib.util, copy
 import datetime
+from unittest.mock import patch
 from pathlib import Path
 class Address(str):
     def __new__(cls, value):
@@ -106,5 +107,34 @@ class Tests(unittest.TestCase):
         self.c.resolve(self.id);self.c.finalize(self.id)
         self.assertEqual(len(self.record()["assessments"]),2)
         self.assertEqual(self.c.credit_of(Address("buyer")),"100")
+    def test_sponsored_claim_is_bound_to_credit_owner(self):
+        self.delivery();self.c.assess(self.id);gl.block.timestamp=4600;self.c.finalize(self.id)
+        gl.message.sender_address=Address('stranger')
+        with self.assertRaisesRegex(Exception,'nothing_to_withdraw'):
+            self.c.withdraw_for(Address('stranger'))
+        self.assertEqual(self.c.credit_of(Address('worker')),'100')
+        transfers=[]
+        class Receiver:
+            def __init__(self,recipient):self.recipient=recipient
+            def emit_transfer(self,*,value):transfers.append((self.recipient,value))
+        with patch.object(contract,'Recipient',Receiver):
+            self.assertEqual(self.c.withdraw_for(Address('worker')),'100')
+            self.assertEqual(transfers,[(Address('worker'),100)])
+            self.assertEqual(self.c.credit_of(Address('worker')),'0')
+            with self.assertRaisesRegex(Exception,'nothing_to_withdraw'):
+                self.c.withdraw_for(Address('worker'))
+        with self.assertRaisesRegex(Exception,'wallet_must_be_hex_string'):
+            self.c.withdraw_for('forged')
+    def test_original_withdraw_stays_sender_bound(self):
+        self.c.credits[Address('worker')]=100
+        gl.message.sender_address=Address('stranger')
+        with self.assertRaisesRegex(Exception,'nothing_to_withdraw'):self.c.withdraw()
+        gl.message.sender_address=Address('worker')
+        transfers=[]
+        class Receiver:
+            def __init__(self,recipient):self.recipient=recipient
+            def emit_transfer(self,*,value):transfers.append((self.recipient,value))
+        with patch.object(contract,'Recipient',Receiver):self.c.withdraw()
+        self.assertEqual(transfers,[(Address('worker'),100)])
 if __name__=="__main__":unittest.main()
 

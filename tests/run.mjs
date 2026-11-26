@@ -1,7 +1,7 @@
 import {spawnSync} from 'node:child_process';
 import {existsSync} from 'node:fs';
 import {join} from 'node:path';
-const frontend=spawnSync(process.execPath,['--test','tests/finality.test.js'],{stdio:'inherit'});
+const frontend=spawnSync(process.execPath,['--test','tests/finality.test.js','tests/withdrawal-fees.test.js'],{stdio:'inherit'});
 if(frontend.status!==0)process.exit(frontend.status??1);
 const windowsPython=join(process.env.LOCALAPPDATA||'', 'Programs','Python','Python312','python.exe');
 const python=process.env.PYTHON||(existsSync(windowsPython)?windowsPython:'python3');

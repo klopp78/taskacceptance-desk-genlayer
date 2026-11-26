@@ -16,7 +16,7 @@ with vm.activate():
     gl.message.datetime='2026-11-25T00:00:00+00:00'
     from genlayer import u256
     gl.message.value=u256(100)
-    assert contract.get_version()=='taskacceptance.v2.amount-bound'
+    assert contract.get_version()=='taskacceptance.v2.1.sponsored-credit'
     task_id=contract.create_task(str(worker),json.dumps(['Include three risks','Include mitigations']),1795651200,'direct-smoke','100')
     assert json.loads(contract.get_task(task_id))['baseline']['worker']==str(worker).lower()
     baseline=json.loads(contract.get_task(task_id))['baseline_hash']

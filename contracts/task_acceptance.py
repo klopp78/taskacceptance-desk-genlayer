@@ -25,7 +25,7 @@ class TaskAcceptance(gl.contract.Contract):
 
     @gl.public.view
     def get_version(self) -> str:
-        return "taskacceptance.v2.amount-bound"
+        return "taskacceptance.v2.1.sponsored-credit"
 
     @gl.public.view
     def get_task(self, task_id: str) -> str:
@@ -154,7 +154,13 @@ class TaskAcceptance(gl.contract.Contract):
 
     @gl.public.write
     def withdraw(self) -> str:
-        recipient = gl.message.sender_address
+        return self.release_credit(gl.message.sender_address)
+
+    @gl.public.write
+    def withdraw_for(self, account: str) -> str:
+        return self.release_credit(Address(wallet(account)))
+
+    def release_credit(self, recipient) -> str:
         amount = self.credits.get(recipient, u256(0))
         if int(amount) <= 0:
             raise Exception("nothing_to_withdraw")

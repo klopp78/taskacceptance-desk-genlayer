@@ -1,2 +1,33 @@
-<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TaskAcceptance Desk</title></head><body><header><strong>TaskAcceptance Desk</strong><button id="connect">Connect wallet</button></header><main><p>STUDIONET · TEST GEN · TEXT DELIVERABLES</p><section class="grid"><label>Contract<input id="address" placeholder="0x..."></label><label>Task ID<input id="taskid" placeholder="task_..."></label><button id="load">Load task</button></section><nav><button data-tab="create">New task</button><button data-tab="work">Delivery & review</button><button data-tab="settle">Settlement</button></nav><section id="create" class="view"><h1>New acceptance task</h1><div class="grid"><label>Worker wallet<input id="worker" placeholder="0x..."></label><label>Escrow (test GEN)<input id="amount" value="0.01"></label><label>Delivery deadline<input id="deadline" type="datetime-local"></label></div><label>Acceptance criteria · one per line<textarea id="criteria" rows="5">Include three concrete launch risks.
-Include an owner and a mitigation for each risk.</textarea></label><p>Failed, inconclusive or timed-out reviews refund the buyer. Challenge window: one hour.</p><button id="createTask">Fund task</button></section><section id="work" class="view" hidden><h1>Delivery & review</h1><label>Baseline commitment<input id="baseline" readonly></label><button data-action="accept_task">Accept terms as worker</button><label>Text deliverable<textarea id="delivery" rows="9"></textarea></label><button data-action="submit_delivery">Submit delivery</button><button data-action="assess">Request consensus review</button><label>Challenge explanation<textarea id="objection" rows="4"></textarea></label><button data-action="challenge">Challenge ruling</button><button data-action="resolve">Resolve challenge</button></section><section id="settle" class="view" hidden><h1>Settlement</h1><h2 id="state">No task loaded</h2><p id="credit">Not connected</p><button data-action="finalize">Finalize / recover timeout</button><button id="withdraw">Withdraw credit</button><p>Withdrawal emits a transfer message. Verify recipient balance separately; emission is not proof of payout.</p></section><section class="record"><h2>On-chain record</h2><pre id="record">No task loaded.</pre></section><output id="status" aria-live="polite">Disconnected</output><a id="tx" target="_blank" rel="noopener" hidden>View transaction</a></main><footer>Independent testnet prototype · not a Taskmarket integration</footer><script type="module" src="/src/main.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TaskAcceptance Desk</title></head>
+<body>
+<header><strong>TaskAcceptance Desk</strong><button id="connect">Connect wallet</button></header>
+<main>
+<p>STUDIONET · TEST GEN · TEXT DELIVERABLES</p>
+<section class="grid"><label>Contract<input id="address" placeholder="0x..."></label><label>Task ID<input id="taskid" placeholder="task_..."></label><button id="load">Load task</button></section>
+<nav><button data-tab="create">New task</button><button data-tab="work">Delivery &amp; review</button><button data-tab="settle">Settlement</button></nav>
+<section id="create" class="view">
+<h1>New acceptance task</h1>
+<div class="grid"><label>Worker wallet<input id="worker" placeholder="0x..."></label><label>Escrow (test GEN)<input id="amount" value="0.01"></label><label>Delivery deadline<input id="deadline" type="datetime-local"></label></div>
+<label>Acceptance criteria · one per line<textarea id="criteria" rows="5">Include three concrete launch risks.
+Include an owner and a mitigation for each risk.</textarea></label>
+<p>Failed, inconclusive or timed-out reviews refund the buyer. Challenge window: one hour.</p><button id="createTask">Fund task</button>
+</section>
+<section id="work" class="view" hidden>
+<h1>Delivery &amp; review</h1><label>Baseline commitment<input id="baseline" readonly></label><button data-action="accept_task">Accept terms as worker</button>
+<label>Text deliverable<textarea id="delivery" rows="9"></textarea></label><button data-action="submit_delivery">Submit delivery</button><button data-action="assess">Request consensus review</button>
+<label>Challenge explanation<textarea id="objection" rows="4"></textarea></label><button data-action="challenge">Challenge ruling</button><button data-action="resolve">Resolve challenge</button>
+</section>
+<section id="settle" class="view" hidden>
+<h1>Settlement</h1><h2 id="state">No task loaded</h2>
+<label>Credit owner / payout recipient<input id="creditRecipient" placeholder="0x..."></label>
+<p id="credit">Not connected</p><button data-action="finalize">Finalize / recover timeout</button><button id="withdraw">Claim credit for recipient</button>
+<p>Fees are paid by the connected wallet. Credit goes only to its owner. Transfer emission is not proof of payout.</p>
+</section>
+<section class="record"><h2>On-chain record</h2><pre id="record">No task loaded.</pre></section>
+<output id="status" aria-live="polite">Disconnected</output><a id="tx" target="_blank" rel="noopener" hidden>View transaction</a>
+</main>
+<footer>Independent testnet prototype · not a Taskmarket integration</footer><script type="module" src="/src/main.js"></script>
+</body>
+</html>
