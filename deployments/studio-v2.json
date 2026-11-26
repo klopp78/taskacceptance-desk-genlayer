@@ -12,7 +12,7 @@
     "normalization": "CRLF to LF; terminal newlines ignored",
     "sha256": "049e0d6c592aadb7b49c2de54adba36a1c8371267168769714c9c5b4c93007ab"
   },
-  "fundedWorkflowVerified": false,
+  "fundedWorkflowVerified": true,
   "liveTask": {
     "id": "task_cb39bf52e00026fef7c8ee54d2705b9a9e9b913acfd0cee386c6f2c36781d12f",
     "depositWei": "10000000000000000",
@@ -25,6 +25,18 @@
     "challengeDeadline": 1795627572,
     "finalize": "0xbb3d6714aefafd87859b0cea9772ad667fa5772127bd01d7871d85c3c609b161",
     "settlement": {"amountWei": "10000000000000000", "reason": "consensus_pass", "time": 1795651942},
-    "verifiedFinalizedSteps": ["create", "accept", "deliver", "assess", "finalize"]
+    "payout": {
+      "verified": true,
+      "transaction": "0x5197b3207007c674de6ad9668c28223679a878c243dd43722bd8fcc5938547d8",
+      "status": "FINALIZED",
+      "execution": "FINISHED_WITH_RETURN",
+      "beforeWei": "1999684905249996473",
+      "afterWei": "2009684905249996473",
+      "deltaWei": "10000000000000000",
+      "creditAfterWei": "0",
+      "observedAt": "2026-11-26T00:49:54.862Z",
+      "feePayerIsRecipient": false
+    },
+    "verifiedFinalizedSteps": ["create", "accept", "deliver", "assess", "finalize", "payout"]
   }
 }
