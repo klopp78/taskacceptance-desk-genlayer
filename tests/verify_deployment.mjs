@@ -33,7 +33,15 @@ assert(record.settlement.time >= record.challenge_deadline, 'Settlement bypassed
 assert.equal(record.settlement.recipient.toLowerCase(), record.baseline.worker.toLowerCase());
 const payout = deployment.liveTask.payout;
 assert(payout?.verified && deployment.fundedWorkflowVerified, 'Payout has not been verified.');
-await waitForFinalizedExecution(client, payout.transaction);
+const paid = await waitForFinalizedExecution(client, payout.transaction);
+assert.equal((paid.recipient || paid.to_address).toLowerCase(), deployment.address.toLowerCase());
+assert.notEqual((paid.sender || paid.from_address).toLowerCase(), record.baseline.worker.toLowerCase());
+assert.equal(paid.messages?.length, 1);
+const transfer = paid.messages[0];
+assert.equal(String(transfer.messageType), '0');
+assert.equal(transfer.recipient.toLowerCase(), record.baseline.worker.toLowerCase());
+assert.equal(BigInt(transfer.value), BigInt(record.settlement.amount_wei));
+assert.equal(transfer.onAcceptance, false);
 assert.equal(BigInt(payout.afterWei) - BigInt(payout.beforeWei), BigInt(record.settlement.amount_wei));
 assert.equal(await read('credit_of', [record.baseline.worker]), '0');
 console.log(JSON.stringify({sourceMatch:true,version:deployment.version,task:record.id,state:record.state,payoutDeltaWei:(BigInt(payout.afterWei)-BigInt(payout.beforeWei)).toString()},null,2));
