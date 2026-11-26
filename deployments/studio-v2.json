@@ -7,6 +7,11 @@
   "status": "FINALIZED",
   "versionReadback": "taskacceptance.v2.1.sponsored-credit",
   "upgrade": "0x135fada7eee1f6bd753eb7a909c3cfc490ad6125a08433fbceff3fbf84c0f1a4",
+  "deployedSourceMatch": {
+    "verified": true,
+    "normalization": "CRLF to LF; terminal newlines ignored",
+    "sha256": "049e0d6c592aadb7b49c2de54adba36a1c8371267168769714c9c5b4c93007ab"
+  },
   "fundedWorkflowVerified": false,
   "liveTask": {
     "id": "task_cb39bf52e00026fef7c8ee54d2705b9a9e9b913acfd0cee386c6f2c36781d12f",

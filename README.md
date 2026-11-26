@@ -18,6 +18,8 @@ New deployments use the official GenVM v0.4 runner. The browser client uses GenL
 
 ## Deployment checklist
 
+The wallet selector explicitly supports OKX Wallet or the browser default. Connection, chain/account checks and transaction signing retain the same selected provider rather than rereading a competing global injection. Three additional frontend tests cover provider identity, global replacement and unavailable-wallet rejection (20 focused tests total).
+
 - Official Direct Mode deployment and create/accept/deliver/assess/finalize have passed on Linux using genlayer-test 0.30.0. LLM results are mocked; this does not prove live validator consensus or external payout success.
 - Deploy matching source in Chrome galax Studio, with a fee deposit.
 - Set the resulting address in the app. Verify task-specific IDs under concurrent creates.

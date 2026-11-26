@@ -4,8 +4,11 @@ import { studionet } from 'genlayer-js/chains';
 import { parseEther, formatEther } from 'viem';
 import { waitForFinalizedExecution } from './finality.js';
 import { withdrawalFeeOptions } from './withdrawal-fees.js';
+import { selectWalletProvider } from './wallet-provider.js';
 const $=id=>document.getElementById(id);
-let account,client,busy=false;
+let account,client,provider,busy=false;
+$('walletProvider').value=typeof window.okxwallet?.request==='function'?'okx':'default';
+$('walletProvider').onchange=()=>{account=client=provider=undefined;$('connect').textContent='Connect wallet';$('status').textContent='Reconnect the selected wallet.';};
 const reader=createClient({chain:studionet});
 $('address').value=localStorage.getItem('taskacceptance.v2.contract')||'0x5b9b230e55AC1Ae9EbD3b5969872173785F3E464';
 $('taskid').value=localStorage.getItem('taskacceptance.v2.task')||'';
@@ -15,8 +18,8 @@ document.querySelector('[data-tab]').classList.add('active');
 function address(){const a=$('address').value.trim();if(!/^0x[0-9a-fA-F]{40}$/.test(a))throw Error('Set a deployed v2 contract address.');localStorage.setItem('taskacceptance.v2.contract',a);return a;}
 function task(){const id=$('taskid').value.trim();if(!/^task_[a-f0-9]{64}$/.test(id))throw Error('Load a valid task ID.');return id;}
 async function guard(fn){if(busy)return;busy=true;document.querySelectorAll('button').forEach(b=>b.disabled=true);try{await fn();}catch(e){$('status').textContent=e.shortMessage||e.message||String(e);}finally{busy=false;document.querySelectorAll('button').forEach(b=>b.disabled=false);}}
-async function identity(){if(!client)throw Error('Connect wallet first.');const [current]=await window.ethereum.request({method:'eth_accounts'});if(current?.toLowerCase()!==account.toLowerCase())throw Error('Wallet account changed. Reconnect.');if(Number(await window.ethereum.request({method:'eth_chainId'}))!==studionet.id)throw Error('Switch wallet to Studionet.');}
-$('connect').onclick=()=>guard(async()=>{if(!window.ethereum)throw Error('No browser wallet detected.');[account]=await window.ethereum.request({method:'eth_requestAccounts'});if(Number(await window.ethereum.request({method:'eth_chainId'}))!==studionet.id)await window.ethereum.request({method:'wallet_switchEthereumChain',params:[{chainId:'0x'+studionet.id.toString(16)}]});client=createClient({chain:studionet,account,provider:window.ethereum});$('connect').textContent=account.slice(0,6)+'...'+account.slice(-4);$('status').textContent='Connected to Studionet';});
+async function identity(){if(!client||!provider||!account)throw Error('Connect wallet first.');const [current]=await provider.request({method:'eth_accounts'});if(current?.toLowerCase()!==account.toLowerCase())throw Error('Wallet account changed. Reconnect.');if(Number(await provider.request({method:'eth_chainId'}))!==studionet.id)throw Error('Switch wallet to Studionet.');}
+$('connect').onclick=()=>guard(async()=>{provider=selectWalletProvider(window,$('walletProvider').value);[account]=await provider.request({method:'eth_requestAccounts'});if(!/^0x[0-9a-fA-F]{40}$/.test(account||''))throw Error('Wallet did not return a valid account.');if(Number(await provider.request({method:'eth_chainId'}))!==studionet.id)await provider.request({method:'wallet_switchEthereumChain',params:[{chainId:'0x'+studionet.id.toString(16)}]});client=createClient({chain:studionet,account,provider});$('connect').textContent=account.slice(0,6)+'...'+account.slice(-4);$('status').textContent='Connected to Studionet';});
 async function version(){const v=await reader.readContract({address:address(),functionName:'get_version',args:[],transactionHashVariant:'latest-final'});if(v!=='taskacceptance.v2.1.sponsored-credit')throw Error('Wrong contract version; v2.1 required.');}
 async function readTask(){await version();const raw=await reader.readContract({address:address(),functionName:'get_task',args:[task()],transactionHashVariant:'latest-final'});if(!raw)throw Error('Task not found in finalized state.');const r=JSON.parse(raw);if(r.id!==task())throw Error('Task readback mismatch.');$('record').textContent=JSON.stringify(r,null,2);$('state').textContent=r.state;$('baseline').value=r.baseline_hash;if(!$('creditRecipient').value)$('creditRecipient').value=r.settlement?.recipient||r.baseline.worker;return r;}
 async function credit(){const recipient=$('creditRecipient').value.trim()||account;if(!recipient)return;const value=await reader.readContract({address:address(),functionName:'credit_of',args:[recipient],transactionHashVariant:'latest-final'});$('credit').textContent=formatEther(BigInt(value))+' GEN credit';}

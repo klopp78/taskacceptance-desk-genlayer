@@ -2,7 +2,7 @@
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TaskAcceptance Desk</title></head>
 <body>
-<header><strong>TaskAcceptance Desk</strong><button id="connect">Connect wallet</button></header>
+<header><strong>TaskAcceptance Desk</strong><div class="wallet-controls"><select id="walletProvider" aria-label="Wallet provider"><option value="okx">OKX Wallet</option><option value="default">Browser default</option></select><button id="connect">Connect wallet</button></div></header>
 <main>
 <p>STUDIONET · TEST GEN · TEXT DELIVERABLES</p>
 <section class="grid"><label>Contract<input id="address" placeholder="0x..."></label><label>Task ID<input id="taskid" placeholder="task_..."></label><button id="load">Load task</button></section>
